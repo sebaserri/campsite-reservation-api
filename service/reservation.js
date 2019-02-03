@@ -24,39 +24,46 @@ module.exports = {
     },
 
     count: (from, to) => {
-        from = from.format('YYYY-MM-DD');
-        to = to.format('YYYY-MM-DD');
-        
+        from = from.format("YYYY-MM-DDTHH:mm:ss.SSSZ");
+        to = to.format("YYYY-MM-DDTHH:mm:ss.SSSZ")
         return ReservationSchema.find({
-            "dateFrom": 
-                {$gt: new Date(from)},
-            "dateTo":
-                {$lt: new Date(to)}
+            $and: [{
+                dateFrom: {
+                    $gte: new Date(from)
+                }
+            }, {
+                dateTo: {
+                    $lte: new Date(to)
+                }
+            }]
         }).count();
+
     },
- 
+
     all: () => {
         return ReservationSchema.find();
     },
 
     findByBookingId: (bookingId) => {
-        return ReservationSchema.findOne({bookingId: bookingId});
+        return ReservationSchema.findOne({
+            bookingId: bookingId
+        });
     },
 
     update: (aReservation) => {
         let dateFrom = new Date(aReservation.dateFrom.format());
         let dateTo = new Date(aReservation.dateTo.format())
-        return ReservationSchema.updateOne({ bookingId: aReservation.bookingId }, 
-            {
-                $set: {
-                    name: aReservation.name,
-                    lastname: aReservation.lastname,
-                    email: aReservation.email,
-                    dateFrom: dateFrom,
-                    dateTo: dateTo
-                }
+        return ReservationSchema.updateOne({
+            bookingId: aReservation.bookingId
+        }, {
+            $set: {
+                name: aReservation.name,
+                lastname: aReservation.lastname,
+                email: aReservation.email,
+                dateFrom: dateFrom,
+                dateTo: dateTo
             }
-        );
+        });
     },
 
     delete: (id) => {

@@ -44,7 +44,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       let now = moment();
       let diff = now.diff(dateFrom, 'days');
-      if (diff <= 0) {
+      if (diff >= 0) {
         reject({
           status: 400,
           message: 'The campsite can be reserved minimum 1 day(s) ahead of arrival'
@@ -59,7 +59,7 @@ module.exports = {
       if (diff <= 0) {
         reject({
           status: 400,
-          message: 'The campsite can be reserved minimum 1 day(s) ahead of arrival'
+          message: 'The date from should be greater than date to'
         });
       }
       resolve();
