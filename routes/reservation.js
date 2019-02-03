@@ -32,9 +32,8 @@ router.get('/available', async (req, res, next) => {
     try {
       let {from, to} = await ReservationReq.validateDates(req.query.dateFrom, req.query.dateTo);
       await DateHelper.fromGreaterThanTo(from, to);
-      await DateHelper.sameDateValidation(from, to);
+      await DateHelper.upToOneMonthValidation(from);
       await DateHelper.maxTimeReservedValidation(from, to);
-      await DateHelper.upToOneMonthValidation(from, to);
       await DateHelper.oneDayBeforeValidation(from, to);
 
       try {
@@ -59,9 +58,8 @@ router.post('/', async (req, res, next) => {
   try {
     const reservation = await ReservationReq.validateRequest(req, uuidv4());
     await DateHelper.fromGreaterThanTo(reservation.dateFrom, reservation.dateTo);
-    await DateHelper.sameDateValidation(reservation.dateFrom, reservation.dateTo);
+    await DateHelper.upToOneMonthValidation(reservation.dateFrom);
     await DateHelper.maxTimeReservedValidation(reservation.dateFrom, reservation.dateTo);
-    await DateHelper.upToOneMonthValidation(reservation.dateFrom, reservation.dateTo);
     await DateHelper.oneDayBeforeValidation(reservation.dateFrom, reservation.dateTo);
 
     const booking = await Reservation.create(reservation);
@@ -84,11 +82,18 @@ router.get('/:bookingId', async (req, res, next) => {
       res.status(400).json({
         'error': 'Invalid BookingId'
       });
+    } else {
+      let reservation = await Reservation.findByBookingId(req.params.bookingId);
+      if (reservation) {
+       res.status(200).json({
+          'result': reservation
+        });
+      } else {
+        res.status(400).json({
+          'error': 'Reservation by BookingId not found'
+        });
+      }
     }
-    let reservation = await Reservation.findByBookingId(req.params.bookingId);
-    res.status(200).json({
-      'result': reservation
-    });
   } catch (e) {
     console.error(e);
     res.status(e.status || 500).json({
@@ -101,16 +106,21 @@ router.put('/', async (req, res, next) => {
   try {
     let {from, to} = await ReservationReq.validateDates(req.body.dateFrom, req.body.dateTo);
     await DateHelper.fromGreaterThanTo(from, to);
-    await DateHelper.sameDateValidation(from, to);
+    await DateHelper.upToOneMonthValidation(from);
     await DateHelper.maxTimeReservedValidation(from, to);
-    await DateHelper.upToOneMonthValidation(from, to);
     await DateHelper.oneDayBeforeValidation(from, to);
 
     const reservation = await ReservationReq.validateBooking(req);
-    let r = await Reservation.update(reservation);
-    res.status(200).json({
-      'result': {'bookingId': reservation.bookingId, 'modified': r.ok}
-    });
+    let book = await Reservation.update(reservation);
+    if (book.n === 0) {
+      res.status(500).json({
+        'result': {'bookingId': reservation.bookingId, 'message': 'BookingId not Found'}
+      });
+    } else {
+      res.status(200).json({
+        'result': {'bookingId': reservation.bookingId, 'modified': book.n}
+      });
+    }
   } catch (e) {
     console.error(e);
     res.status(e.status || 500).json({
@@ -128,13 +138,12 @@ router.delete('/', async (req, res, next) => {
       res.status(500).json({
         'message': 'BookingId not found'
       });
-      next('BookingId not found');
-      return;
-    }
-    let reservation = await Reservation.delete(row._id);
+    } else {
+      let reservation = await Reservation.delete(row._id);
       res.status(200).json({
         'result': reservation
       });
+    }
   } catch (e) {
     console.error(e);
     res.status(e.status || 500).json({

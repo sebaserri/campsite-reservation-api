@@ -4,9 +4,10 @@ const moment = require('moment');
 
 module.exports = {
 
-  upToOneMonthValidation: (from, to) => {
+  upToOneMonthValidation: (from) => {
     return new Promise((resolve, reject) => {
-      const diff = to.diff(from, 'months');
+      let now = moment();
+      const diff = from.diff(now, 'months', true);
       if (diff > 1) {
         reject({
           status: 400,
@@ -42,8 +43,9 @@ module.exports = {
   },
   oneDayBeforeValidation: (dateFrom) => {
     return new Promise((resolve, reject) => {
-      let now = moment();
-      let diff = now.diff(dateFrom, 'days');
+      let now = moment().format("YYYY-MM-DD");
+      now = moment(now, 'YYYY-MM-DD', true);
+      let diff = now.diff(dateFrom, 'days', true);
       if (diff >= 0) {
         reject({
           status: 400,
