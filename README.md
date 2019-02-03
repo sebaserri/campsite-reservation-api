@@ -102,6 +102,7 @@ Runing the script campsite.yml
 ```bash
 artillery run campsite.yml
 ```
+Target: http://localhost:3001/api/book
 
 ```bash
 All virtual users finished
@@ -124,4 +125,28 @@ Summary report @ 19:50:09(-0300) 2019-02-03
   Errors:
     ECONNRESET: 193
     ESOCKETTIMEDOUT: 193
+```
+
+Target (Running on Docker): http://0.0.0.0:3001/api/book
+
+```bash
+All virtual users finished
+Summary report @ 20:03:15(-0300) 2019-02-03
+  Scenarios launched:  600
+  Scenarios completed: 600
+  Requests completed:  3000
+  RPS sent: 98.46
+  Request latency:
+    min: 0.8
+    max: 280.1
+    median: 5.8
+    p95: 76
+    p99: 146.9
+  Scenario counts:
+    0: 600 (100%)
+  Codes:
+    200: 1800
+    201: 600
+    500: 600
+
 ```
