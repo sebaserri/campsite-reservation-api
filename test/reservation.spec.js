@@ -92,7 +92,7 @@ describe('PUT /api/book', function () {
 
 describe('DELETE /api/book', function () {
     let data = {
-        "bookingId": "414210a4-fbb4-49aa-8876-2f475ba8430b"
+        "bookingId": "c45d5809-356e-4db4-99cb-99a60bb87c07"
     };
     it('respond with 500 deleting the reservation', function (done) {
         request(app)
@@ -100,7 +100,7 @@ describe('DELETE /api/book', function () {
             .send(data)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
-            .expect(500)
+            .expect(400)
             .end((err) => {
                 if (err) return done(err);
                 done();

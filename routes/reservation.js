@@ -9,6 +9,7 @@ const Reservation = require('../service/reservation');
 const ReservationReq = require('../utils/ReservationRequest');
 const DateHelper = require('../utils/dateHelper');
 
+const MAX_CAPACITY = 10;
 router.get('/', async (req, res, next) => {
   try {
     let reservations = await Reservation.all();
@@ -27,7 +28,7 @@ router.get('/available', async (req, res, next) => {
   if (!req.query.dateFrom || !req.query.dateTo) {
     let dateFrom = moment().format('YYYY-MM-DD');
     let dateTo = moment().add(1, 'months').format('YYYY-MM-DD');
-    res.status(200).json({result: {dateFrom, dateTo}});
+    res.status(200).json({'result': {dateFrom, dateTo}});
   } else {
     try {
       let {from, to} = await ReservationReq.validateDates(req.query.dateFrom, req.query.dateTo);
@@ -38,11 +39,11 @@ router.get('/available', async (req, res, next) => {
 
       try {
         let qty = await Reservation.count(from, to);
-        let result = {available: false};
-        if (qty < 10) {
-          result = {'available': true}
+        let result = {'dateFrom': from, 'dateTo': to, 'available': false};
+        if (qty < MAX_CAPACITY) {
+          result = {'dateFrom': from, 'dateTo': to, 'available': true}
         }
-        res.status(200).json({result});
+        res.status(200).json({'result': result});
       } catch (e) {
         console.error(e);
         res.status(e.status || 500).json({'message': e.message});
@@ -78,22 +79,12 @@ router.post('/', async (req, res, next) => {
 
 router.get('/:bookingId', async (req, res, next) => {
   try {
-    if (!_.isString(req.params.bookingId)) {
-      res.status(400).json({
-        'error': 'Invalid BookingId'
-      });
-    } else {
-      let reservation = await Reservation.findByBookingId(req.params.bookingId);
-      if (reservation) {
-       res.status(200).json({
-          'result': reservation
-        });
-      } else {
-        res.status(400).json({
-          'error': 'Reservation by BookingId not found'
-        });
-      }
-    }
+    await ReservationReq.validateBookingId(req.params.bookingId);
+    let reservation = await Reservation.findByBookingId(req.params.bookingId);
+    await ReservationReq.existsReservation(reservation);
+    res.status(200).json({
+      'result': reservation
+    });
   } catch (e) {
     console.error(e);
     res.status(e.status || 500).json({
@@ -111,14 +102,14 @@ router.put('/', async (req, res, next) => {
     await DateHelper.oneDayBeforeValidation(from, to);
 
     const reservation = await ReservationReq.validateBooking(req);
-    let book = await Reservation.update(reservation);
-    if (book.n === 0) {
+    let result = await Reservation.update(reservation);
+    if (result.n === 0) {
       res.status(500).json({
         'result': {'bookingId': reservation.bookingId, 'message': 'BookingId not Found'}
       });
     } else {
       res.status(200).json({
-        'result': {'bookingId': reservation.bookingId, 'modified': book.n}
+        'result': {'bookingId': reservation.bookingId, 'modified': result.n}
       });
     }
   } catch (e) {
@@ -131,19 +122,13 @@ router.put('/', async (req, res, next) => {
 
 router.delete('/', async (req, res, next) => {
   try {
-    await ReservationReq.bookingIdValidation(req.body.bookingId);
+    await ReservationReq.validateBookingId(req.body.bookingId);
     const row = await Reservation.findByBookingId(req.body.bookingId);
-    if (!row) {
-      console.error('BookingId not found');
-      res.status(500).json({
-        'message': 'BookingId not found'
-      });
-    } else {
-      let reservation = await Reservation.delete(row._id);
-      res.status(200).json({
-        'result': reservation
-      });
-    }
+    await ReservationReq.existsReservation(row);
+    let reservation = await Reservation.delete(row._id);
+    res.status(200).json({
+      'result': reservation
+    });
   } catch (e) {
     console.error(e);
     res.status(e.status || 500).json({

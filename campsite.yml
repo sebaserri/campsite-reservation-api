@@ -3,7 +3,6 @@ config:
   phases:
     - duration: 30
       arrivalRate: 20
-      rampTo: 40
 scenarios:
   - flow:
       - get:
@@ -20,3 +19,12 @@ scenarios:
           url: "/available"
       - get:
           url: "/available?dateFrom=2019-02-20&dateTo=2019-02-23"
+      - put:
+          url: "/"
+          json:
+            bookingId: "5a1a9de6-1906-4458-80df-eeb22be4d7cb"
+            name: "seba2"
+            lastname: "serri2"
+            email: "sebastian2@gmail.com"
+            dateFrom: "2019-02-11"
+            dateTo: "2019-02-14"

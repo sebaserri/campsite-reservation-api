@@ -102,3 +102,26 @@ Runing the script campsite.yml
 ```bash
 artillery run campsite.yml
 ```
+
+```bash
+All virtual users finished
+Summary report @ 19:50:09(-0300) 2019-02-03
+  Scenarios launched:  600
+  Scenarios completed: 214
+  Requests completed:  1578
+  RPS sent: 9.99
+  Request latency:
+    min: 11.2
+    max: 119799.2
+    median: 22619.9
+    p95: 100889.3
+    p99: 115194.1
+  Scenario counts:
+    0: 600 (100%)
+  Codes:
+    200: 1193
+    201: 385
+  Errors:
+    ECONNRESET: 193
+    ESOCKETTIMEDOUT: 193
+```

@@ -47,9 +47,9 @@ module.exports = {
     });
   },
 
-  bookingIdValidation: (bookingId) => {
+  validateBookingId: (bookingId) => {
     return new Promise((resolve, reject) => {
-      if (!_.isString(bookingId)) {
+      if (!bookingId) {
         reject({
           status: 400,
           message: 'Invalid BookingId'
@@ -87,6 +87,19 @@ module.exports = {
       }
 
       resolve(new Reservation(req.body.bookingId, req.body.name, req.body.lastname, req.body.email, from.value, to.value))
+    });
+  },
+
+  existsReservation: (reservation) => {
+    return new Promise((resolve, reject) => {
+      if (!reservation) {
+        reject({
+          status: 400,
+          message: 'Reservation by BookingId not found'
+        });
+        return;
+      }
+      resolve();
     });
   },
 
