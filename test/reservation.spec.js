@@ -1,29 +1,29 @@
 const app = require('../index');
 const request = require('supertest');
 
-describe('GET /api/reservation', function () {
+describe('GET /api/book', function () {
     it('respond with json containing a list of all reservations', function (done) {
         request(app)
-            .get('/api/reservation')
+            .get('/api/book')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200, done);
     });
 });
-describe('GET /api/reservation/:id', function () {
+describe('GET /api/book/:id', function () {
     it('respond with json containing a single reservation', function (done) {
         request(app)
-            .get('/api/reservation/5be8bbcd9a12ca3e08eaae2d')
+            .get('/api/book/5be8bbcd9a12ca3e08eaae2d')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(200, done);
     });
 });
 
-describe('GET /api/reservation/:bookingId', function () {
+describe('GET /api/book/:bookingId', function () {
     it('respond with json reservation not found', function (done) {
         request(app)
-            .get('/api/reservation/')
+            .get('/api/book/')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(500) //expecting HTTP status code
@@ -34,7 +34,7 @@ describe('GET /api/reservation/:bookingId', function () {
     });
 });
 
-describe('POST /api/reservation', function () {
+describe('POST /api/book', function () {
     let data = {
         "name": "Sebastian",
         "lastname": "Serri",
@@ -44,7 +44,7 @@ describe('POST /api/reservation', function () {
     }
     it('respond with 201 created', function (done) {
         request(app)
-            .post('/api/reservation')
+            .post('/api/book')
             .send(data)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
@@ -56,7 +56,7 @@ describe('POST /api/reservation', function () {
     });
 });
 
-describe('PUT /api/reservation', function () {
+describe('PUT /api/book', function () {
     let data = {
         "id": "5be8bbcd9a12ca3e08eaae2d",
         "name": "Leandro",
@@ -65,7 +65,7 @@ describe('PUT /api/reservation', function () {
     }
     it('respond with 200 not created', function (done) {
         request(app)
-            .put('/api/reservation')
+            .put('/api/book')
             .send(data)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
@@ -77,13 +77,13 @@ describe('PUT /api/reservation', function () {
     });
 });
 
-describe('DELETE /api/reservation', function () {
+describe('DELETE /api/book', function () {
     let data = {
         "id": "5be8bbcd9a12ca3e08eaae2d"
     }
     it('respond with 200 not created', function (done) {
         request(app)
-            .delete('/api/reservation')
+            .delete('/api/book')
             .send(data)
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)

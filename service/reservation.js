@@ -1,4 +1,6 @@
-const Reservation = require('../model/reservation.js');
+'use strict';
+
+const ReservationSchema = require('../model/ReservationSchema.js');
 
 module.exports = {
     create: (aReservation) => {
@@ -6,10 +8,10 @@ module.exports = {
         const name = aReservation.name;
         const lastname = aReservation.lastname;
         const email = aReservation.email;
-        const dateFrom = aReservation.dateFrom;
-        const dateTo = aReservation.dateTo;
+        const dateFrom = new Date(aReservation.dateFrom);
+        const dateTo = new Date(aReservation.dateTo);
 
-        const reservation = new Reservation({
+        const reservation = new ReservationSchema({
             bookingId,
             name,
             lastname,
@@ -17,35 +19,49 @@ module.exports = {
             dateFrom,
             dateTo
         });
-        reservation.save();
         console.log("Reservation is created");
+        return reservation.save();
     },
 
+    count: (from, to) => {
+        from = from.format('YYYY-MM-DD');
+        to = to.format('YYYY-MM-DD');
+        
+        return ReservationSchema.find({
+            "dateFrom": 
+                {$gt: new Date(from)},
+            "dateTo":
+                {$lt: new Date(to)}
+        }).count();
+    },
+ 
     all: () => {
-        return Reservation.find();
+        return ReservationSchema.find();
     },
 
     findByBookingId: (bookingId) => {
-        return Reservation.find({bookingId: bookingId});
+        return ReservationSchema.findOne({bookingId: bookingId});
     },
 
     update: (aReservation) => {
-        return Reservation.updateOne({ bookingId: aReservation.bookingId }, 
+        let dateFrom = new Date(aReservation.dateFrom.format());
+        let dateTo = new Date(aReservation.dateTo.format())
+        return ReservationSchema.updateOne({ bookingId: aReservation.bookingId }, 
             {
                 $set: {
                     name: aReservation.name,
                     lastname: aReservation.lastname,
                     email: aReservation.email,
-                    dateFrom: aReservation.dateFrom,
-                    dateTo: aReservation.dateTo
+                    dateFrom: dateFrom,
+                    dateTo: dateTo
                 }
             }
         );
     },
 
-    delete: (bookingId) => {
-        return Reservation.findByIdAndDelete({
-            bookingId: bookingId
+    delete: (id) => {
+        return ReservationSchema.findByIdAndDelete({
+            _id: id
         });
     }
 

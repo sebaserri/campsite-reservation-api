@@ -40,7 +40,7 @@ app.use(express.static(path.join(__dirname, 'public')));
  */
 const reservationRouter = require('../routes/reservation');
 
-app.use('/api/reservation', reservationRouter);
+app.use('/api/book', reservationRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

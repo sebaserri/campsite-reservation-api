@@ -1,47 +1,31 @@
 'use strict';
 const _ = require('lodash');
 const moment = require('moment');
+const Reservation = require('../model/Reservation');
 
-class ReservationReq {
-
-  constructor(bookingId, name, lastname, email, dateFrom, dateTo) {
-    this.bookingId = bookingId;
-    this.name = name;
-    this.lastname = lastname;
-    this.email = email;
-    this.dateFrom = dateFrom;
-    this.dateTo = dateTo;
-  }
-
-  static formatDate(date) {
-    if (!date) {
+const formatDate = (date) => {
+    date = moment(date, 'YYYY-MM-DD', true);
+    if (date.isValid()) {
       return {
-        status: 400,
-        message: 'Invalid date'
+        status: 0,
+        value: date
       };
     } else {
-      let date = moment(date, 'MM-DD-YYYY HH-MI', true);
-      if (date.isValid()) {
-        return {
-          status: 0,
-          value: date.format()
-        };
-      } else {
-        return {
-          status: 400,
-          message: 'Invalid Format for date'
-        };
-      }
+      return {
+        status: 400,
+        message: 'Invalid Format for date'
+      };
     }
-  }
+  
+}
 
-  static validateDates(dateFrom, dateTo) {
+module.exports = {
+
+  validateDates: (dateFrom, dateTo) => {
     return new Promise((resolve, reject) => {
       const from = formatDate(dateFrom);
       const to = formatDate(dateTo);
 
-
-      let from = formatDate(req.body.dateFrom);
       if (from.status === 400) {
         reject({
           status: from.status,
@@ -49,7 +33,6 @@ class ReservationReq {
         });
       }
 
-      let to = formatDate(req.body.dateTo);
       if (to.status === 400) {
         reject({
           status: from.status,
@@ -62,9 +45,52 @@ class ReservationReq {
         to: to.value
       });
     });
-  }
+  },
 
-  static validateRequest(req, bookingId) {
+  bookingIdValidation: (bookingId) => {
+    return new Promise((resolve, reject) => {
+      if (!_.isString(bookingId)) {
+        reject({
+          status: 400,
+          message: 'Invalid BookingId'
+        });
+      }
+      resolve();
+    });
+  }, 
+
+  validateBooking: (req) => {
+    return new Promise((resolve, reject) => {
+      if (!_.isString(req.body.bookingId)) {
+        reject({
+          status: 400,
+          message: 'Invalid BookingId'
+        });
+      }
+
+      let from = formatDate(req.body.dateFrom);
+      if (from.status === 400) {
+        reject({
+          status: from.status,
+          message: from.message
+        });
+        return;
+      }
+
+      let to = formatDate(req.body.dateTo);
+      if (to.status === 400) {
+        reject({
+          status: from.status,
+          message: to.message
+        });
+        return;
+      }
+
+      resolve(new Reservation(req.body.bookingId, req.body.name, req.body.lastname, req.body.email, from.value, to.value))
+    });
+  },
+
+  validateRequest: (req, bookingId) => {
     return new Promise((resolve, reject) => {
 
       if (!_.isString(bookingId)) {
@@ -117,11 +143,7 @@ class ReservationReq {
         return;
       }
 
-      resolve(new ReservationReq(bookingId, req.body.name, req.body.lastname, req.body.email, from.value, to.value));
+      resolve(new Reservation(bookingId, req.body.name, req.body.lastname, req.body.email, from.value, to.value));
     });
   }
-}
-
-module.exports = {
-  ReservationReq
 };
