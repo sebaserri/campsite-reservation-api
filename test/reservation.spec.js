@@ -27,7 +27,7 @@ describe('GET /api/book/:booking', function () {
             .get('/api/book/12345678')
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
-            .expect(200) //expecting HTTP status code
+            .expect(400) //expecting HTTP status code
             .end((err) => {
                 if (err) return done(err);
                 done();
