@@ -1,0 +1,22 @@
+config:
+  target: "http://localhost:3001/api/book"
+  phases:
+    - duration: 30
+      arrivalRate: 20
+      rampTo: 40
+scenarios:
+  - flow:
+      - get:
+          url: "/"
+      - post:
+          url: "/"
+          json:
+            name: "seba"
+            lastname: "serri"
+            email: "sebastian@gmail.com"
+            dateFrom: "2019-02-10"
+            dateTo: "2019-02-13"
+      - get:
+          url: "/available"
+      - get:
+          url: "/available?dateFrom=2019-02-20&dateTo=2019-02-23"
